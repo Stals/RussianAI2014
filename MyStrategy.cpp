@@ -25,13 +25,8 @@ void MyStrategy::move(const Hockeyist& self, const World& world, const Game& gam
 
     if (world.getPuck().getOwnerPlayerId() == self.getPlayerId()) {
         if (world.getPuck().getOwnerHockeyistId() == self.getId()) {
-            Player opponentPlayer = world.getOpponentPlayer();
-
-            double netX = 0.5 * (opponentPlayer.getNetBack() + opponentPlayer.getNetFront());
-            double netY = 0.5 * (opponentPlayer.getNetBottom() + opponentPlayer.getNetTop());
-            netY += (self.getY() < netY ? 0.5 : -0.5) * game.getGoalNetHeight();
-
-            double angleToNet = self.getAngleTo(netX, netY);
+            Point netPoint = getNetPoint(gd);
+            double angleToNet = self.getAngleTo(netPoint.x, netPoint.y);
             move.setTurn(angleToNet);
 
             if (abs(angleToNet) < STRIKE_ANGLE) {
@@ -51,6 +46,17 @@ void MyStrategy::move(const Hockeyist& self, const World& world, const Game& gam
     } else {
 		moveToPuck(gd);
     }
+}
+
+Point MyStrategy::getNetPoint(GameData& gd)
+{
+	// TODO если мы ниже, то выбирать точку меньше на пиксель чем верх сетки - радиус шайбы*2
+	Player opponentPlayer = gd.world.getOpponentPlayer();
+	double netX = 0.5 * (opponentPlayer.getNetBack() + opponentPlayer.getNetFront());
+    double netY = 0.5 * (opponentPlayer.getNetBottom() + opponentPlayer.getNetTop());
+    netY += (gd.self.getY() < netY ? 0.5 : -0.5) * gd.game.getGoalNetHeight();
+
+	return Point(netX, netY);
 }
 
  const Hockeyist* MyStrategy::getNearestOpponent(double x, double y, const World &world) {

@@ -18,6 +18,14 @@ struct GameData{
 	Move& move;
 };
 
+struct Point{
+	Point(double x, double y):x(x), y(y){	
+	}
+
+	double x;
+	double y;
+};
+
 class MyStrategy : public Strategy {
 public:
     MyStrategy();
@@ -28,6 +36,9 @@ private:
 	static const model::Hockeyist* getNearestOpponent(double x, double y, const World &world);
 
 	void moveToPuck(GameData& gameData);
+
+	// returns net point to aim for
+	Point getNetPoint(GameData& gameData);
 };
 
 #endif
