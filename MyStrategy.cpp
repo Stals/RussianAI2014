@@ -16,6 +16,8 @@ MyStrategy::MyStrategy() { }
 
 
 void MyStrategy::move(const Hockeyist& self, const World& world, const Game& game, Move& move) {
+	GameData gd(self, world, game, move);
+	
 	if (self.getState() == SWINGING) {
         move.setAction(STRIKE);
         return;
@@ -47,9 +49,7 @@ void MyStrategy::move(const Hockeyist& self, const World& world, const Game& gam
             }
         }
     } else {
-        move.setSpeedUp(1.0);
-        move.setTurn(self.getAngleTo(world.getPuck()));
-        move.setAction(TAKE_PUCK);
+		moveToPuck(gd);
     }
 }
 
@@ -79,3 +79,11 @@ void MyStrategy::move(const Hockeyist& self, const World& world, const Game& gam
 
         return nearestOpponent;
     }
+
+
+ void MyStrategy::moveToPuck(GameData& gd)
+ {
+    gd.move.setSpeedUp(1.0);
+    gd.move.setTurn(gd.self.getAngleTo(gd.world.getPuck()));
+    gd.move.setAction(TAKE_PUCK);
+ }

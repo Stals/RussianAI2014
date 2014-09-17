@@ -7,6 +7,17 @@
 
 using namespace model;
 
+struct GameData{
+	GameData(const Hockeyist& self, const World& world, const Game& game, Move& move) :
+		self(self), world(world), game(game), move(move){
+	}
+
+	const Hockeyist& self;
+	const World& world;
+	const Game& game;
+	Move& move;
+};
+
 class MyStrategy : public Strategy {
 public:
     MyStrategy();
@@ -15,6 +26,8 @@ public:
 
 private:
 	static const model::Hockeyist* getNearestOpponent(double x, double y, const World &world);
+
+	void moveToPuck(GameData& gameData);
 };
 
 #endif
