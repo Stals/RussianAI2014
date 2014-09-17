@@ -46,6 +46,11 @@ private:
 	void moveTo(GameData& gd, const Unit& unit);
 
 	void attackNearest(GameData& gd);
+
+	// we control puck
+	bool ownPuck(GameData& gd);
+	// this is the unit with puck
+	bool unitWithPuck(GameData& gd, const Hockeyist& hockeist);
 };
 
 #endif

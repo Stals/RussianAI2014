@@ -23,8 +23,8 @@ void MyStrategy::move(const Hockeyist& self, const World& world, const Game& gam
         return;
     }
 
-    if (world.getPuck().getOwnerPlayerId() == self.getPlayerId()) {
-        if (world.getPuck().getOwnerHockeyistId() == self.getId()) {
+    if (ownPuck(gd)) {
+        if (unitWithPuck(gd, self)){
             turnAndSwing(gd);
 
         } else {
@@ -34,6 +34,16 @@ void MyStrategy::move(const Hockeyist& self, const World& world, const Game& gam
     } else {
 		moveToPuck(gd);
     }
+}
+
+bool MyStrategy::ownPuck(GameData& gd)
+{
+	return gd.world.getPuck().getOwnerPlayerId() == gd.self.getPlayerId();
+}
+
+bool MyStrategy::unitWithPuck(GameData& gd, const Hockeyist& hockeist)
+{
+	return gd.world.getPuck().getOwnerHockeyistId() == hockeist.getId();
 }
 
 void MyStrategy::attackNearest(GameData& gd)
