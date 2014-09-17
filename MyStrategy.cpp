@@ -62,13 +62,21 @@ void MyStrategy::attackNearest(GameData& gd)
 
 Point MyStrategy::getNetPoint(GameData& gd)
 {
-	// TODO если мы ниже, то выбирать точку меньше на пиксель чем верх сетки - радиус шайбы*2
 	Player opponentPlayer = gd.world.getOpponentPlayer();
 	double netX = 0.5 * (opponentPlayer.getNetBack() + opponentPlayer.getNetFront());
     double netY = 0.5 * (opponentPlayer.getNetBottom() + opponentPlayer.getNetTop());
-    netY += (gd.self.getY() < netY ? 0.5 : -0.5) * gd.game.getGoalNetHeight();
+	
+	double netYShift = 0.5 * gd.game.getGoalNetHeight() - gd.world.getPuck().getRadius();
+	netYShift *= gd.self.getY() < netY ? 1 : -1;
+
+	netY += netYShift;
+	
+	// TODO also change X - depenging on the side
+	//netX += 
 
 	return Point(netX, netY);
+	// TODO нужно либо учитывать свой вектор скорости
+	// либо перед тем как бить полностью останавливаться (достаточно близко к 0)
 }
 
 void MyStrategy::turnAndSwing(GameData& gd)
