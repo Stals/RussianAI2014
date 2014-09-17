@@ -7,6 +7,8 @@
 #include <cstdlib>
 
 
+#include "Logger.h"
+
 using namespace std;
 
 const double STRIKE_ANGLE = 1.0 * PI / 180.0;
@@ -66,10 +68,13 @@ Point MyStrategy::getNetPoint(GameData& gd)
 	double netX = 0.5 * (opponentPlayer.getNetBack() + opponentPlayer.getNetFront());
     double netY = 0.5 * (opponentPlayer.getNetBottom() + opponentPlayer.getNetTop());
 	
-	double netYShift = 0.5 * gd.game.getGoalNetHeight() - gd.world.getPuck().getRadius();
+	double netYShift = 0.5 * gd.game.getGoalNetHeight();
 	netYShift *= gd.self.getY() < netY ? 1 : -1;
-
 	netY += netYShift;
+
+	/*double netYShift = 0.5 * gd.game.getGoalNetHeight() - gd.world.getPuck().getRadius();
+	netYShift *= gd.self.getY() < netY ? 1 : -1;
+	netY += netYShift;*/
 	
 	// TODO also change X - depenging on the side
 	//netX += 
@@ -124,13 +129,19 @@ void MyStrategy::turnAndSwing(GameData& gd)
     gd.move.setAction(TAKE_PUCK);
  }
 
+
  void MyStrategy::moveTo(GameData& gd, double x, double y)
  {
-	gd.move.setSpeedUp(1.0);
+	gd.move.setSpeedUp(getSpeed(gd.self.getAngleTo(x, y)));
     gd.move.setTurn(gd.self.getAngleTo(x, y));
  }
 
  void MyStrategy::moveTo(GameData& gd, const Unit& unit)
  {
 	 moveTo(gd, unit.getX(), unit.getY());
+ }
+
+ double MyStrategy::getSpeed(double angle)
+ {
+	return std::cos(angle * (PI / 180.0));
  }

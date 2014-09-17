@@ -51,6 +51,8 @@ private:
 	bool ownPuck(GameData& gd);
 	// this is the unit with puck
 	bool unitWithPuck(GameData& gd, const Hockeyist& hockeist);
+
+	double getSpeed(double angle);
 };
 
 #endif
