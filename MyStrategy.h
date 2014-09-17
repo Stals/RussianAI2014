@@ -35,10 +35,17 @@ public:
 private:
 	static const model::Hockeyist* getNearestOpponent(double x, double y, const World &world);
 
-	void moveToPuck(GameData& gameData);
+	void moveToPuck(GameData& gd);
 
 	// returns net point to aim for
-	Point getNetPoint(GameData& gameData);
+	Point getNetPoint(GameData& gd);
+	void turnAndSwing(GameData& gd);
+
+	// TODO implement better algoritm
+	void moveTo(GameData& gd, double x, double y);
+	void moveTo(GameData& gd, const Unit& unit);
+
+	void attackNearest(GameData& gd);
 };
 
 #endif

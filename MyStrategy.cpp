@@ -25,26 +25,28 @@ void MyStrategy::move(const Hockeyist& self, const World& world, const Game& gam
 
     if (world.getPuck().getOwnerPlayerId() == self.getPlayerId()) {
         if (world.getPuck().getOwnerHockeyistId() == self.getId()) {
-            Point netPoint = getNetPoint(gd);
-            double angleToNet = self.getAngleTo(netPoint.x, netPoint.y);
-            move.setTurn(angleToNet);
+            turnAndSwing(gd);
 
-            if (abs(angleToNet) < STRIKE_ANGLE) {
-                move.setAction(SWING);
-            }
         } else {
-            const Hockeyist* nearestOpponent = getNearestOpponent(self.getX(), self.getY(), world);
-            if (nearestOpponent != 0) {
-                if (self.getDistanceTo(*nearestOpponent) > game.getStickLength()) {
-                    move.setSpeedUp(1.0);
-                } else if (abs(self.getAngleTo(*nearestOpponent)) < 0.5 * game.getStickSector()) {
-                    move.setAction(STRIKE);
-                }
-                move.setTurn(self.getAngleTo(*nearestOpponent));
-            }
+			attackNearest(gd);
+            
         }
     } else {
 		moveToPuck(gd);
+    }
+}
+
+void MyStrategy::attackNearest(GameData& gd)
+{
+	const Hockeyist* nearestOpponent = getNearestOpponent(gd.self.getX(), gd.self.getY(), gd.world);
+    if (nearestOpponent != 0) {
+        if (gd.self.getDistanceTo(*nearestOpponent) > gd.game.getStickLength()) {
+            moveTo(gd, *nearestOpponent);
+
+        } else if (abs(gd.self.getAngleTo(*nearestOpponent)) < 0.5 * gd.game.getStickSector()) {
+            gd.move.setAction(STRIKE);
+        }
+        //move.setTurn(self.getAngleTo(*nearestOpponent));
     }
 }
 
@@ -57,6 +59,17 @@ Point MyStrategy::getNetPoint(GameData& gd)
     netY += (gd.self.getY() < netY ? 0.5 : -0.5) * gd.game.getGoalNetHeight();
 
 	return Point(netX, netY);
+}
+
+void MyStrategy::turnAndSwing(GameData& gd)
+{
+	Point netPoint = getNetPoint(gd);
+    double angleToNet = gd.self.getAngleTo(netPoint.x, netPoint.y);
+    gd.move.setTurn(angleToNet);
+
+    if (abs(angleToNet) < STRIKE_ANGLE) {
+        gd.move.setAction(SWING);
+    }
 }
 
  const Hockeyist* MyStrategy::getNearestOpponent(double x, double y, const World &world) {
@@ -89,7 +102,17 @@ Point MyStrategy::getNetPoint(GameData& gd)
 
  void MyStrategy::moveToPuck(GameData& gd)
  {
-    gd.move.setSpeedUp(1.0);
-    gd.move.setTurn(gd.self.getAngleTo(gd.world.getPuck()));
+	moveTo(gd, gd.world.getPuck());
     gd.move.setAction(TAKE_PUCK);
+ }
+
+ void MyStrategy::moveTo(GameData& gd, double x, double y)
+ {
+	gd.move.setSpeedUp(1.0);
+    gd.move.setTurn(gd.self.getAngleTo(x, y));
+ }
+
+ void MyStrategy::moveTo(GameData& gd, const Unit& unit)
+ {
+	 moveTo(gd, unit.getX(), unit.getY());
  }
