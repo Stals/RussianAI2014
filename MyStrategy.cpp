@@ -34,6 +34,8 @@ void MyStrategy::move(const Hockeyist& self, const World& world, const Game& gam
             
         }
     } else {
+		strikeEnemyInRange(gd);
+		// если можно ехать и бить одновременно
 		moveToPuck(gd);
     }
 }
@@ -46,6 +48,29 @@ bool MyStrategy::ownPuck(GameData& gd)
 bool MyStrategy::unitWithPuck(GameData& gd, const Hockeyist& hockeist)
 {
 	return gd.world.getPuck().getOwnerHockeyistId() == hockeist.getId();
+}
+
+bool MyStrategy::strikeEnemyInRange(GameData& gd)
+{
+	const Hockeyist* nearestOpponent = getNearestOpponent(gd.self.getX(), gd.self.getY(), gd.world);
+	if (nearestOpponent != 0) {
+		if(inStickRange(gd, *nearestOpponent)){
+			gd.move.setAction(STRIKE);
+			return true;
+		}
+	}
+	return false;
+}
+
+bool MyStrategy::inStickRange(GameData& gd, const Unit& unit)
+{
+	if (gd.self.getDistanceTo(unit) <= gd.game.getStickLength()) {
+		if (abs(gd.self.getAngleTo(unit)) < 0.5 * gd.game.getStickSector()) {
+			return true;
+		}
+	}
+
+	return false;
 }
 
 void MyStrategy::attackNearest(GameData& gd)
@@ -126,7 +151,10 @@ void MyStrategy::turnAndSwing(GameData& gd)
  void MyStrategy::moveToPuck(GameData& gd)
  {
 	moveTo(gd, gd.world.getPuck());
-    gd.move.setAction(TAKE_PUCK);
+
+	if(inStickRange(gd, gd.world.getPuck())){
+		gd.move.setAction(TAKE_PUCK);
+	}
  }
 
 

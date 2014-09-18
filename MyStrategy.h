@@ -52,7 +52,13 @@ private:
 	// this is the unit with puck
 	bool unitWithPuck(GameData& gd, const Hockeyist& hockeist);
 
+	// returns true если рядом есть кого ударить (например перед нами) и бьем его
+	bool strikeEnemyInRange(GameData& gd);
+
 	double getSpeed(double angle);
+
+	// in range to strike enemy or attempt to take the puck
+	bool inStickRange(GameData& gd, const Unit& unit);
 };
 
 #endif
