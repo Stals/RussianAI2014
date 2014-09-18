@@ -27,17 +27,54 @@ void MyStrategy::move(const Hockeyist& self, const World& world, const Game& gam
 
     if (ownPuck(gd)) {
         if (unitWithPuck(gd, self)){
-            turnAndSwing(gd);
+
+			Point strikePoint = getStikeAreaPoint(gd);
+			if(inStrikeArea(gd, strikePoint)){
+				// if already there
+				turnAndSwing(gd);
+			}else{
+				// TODO - тут можно подумать еще насчет того, что если ты около ворот, то тебе лучше ехать задом, чем повернуться поехать, потом повернуться и ударить
+				// тоесть в функции moveTo еще учитывать угол который должен быть в рузальтате и смотря на это выбрать как ехать
+				moveTo(gd, strikePoint);
+			}          
 
         } else {
 			attackNearest(gd);
             
         }
     } else {
+		// TODO если нужно повернуться на несколько градусов то делать этою
+		// TODO возможно не лучшая идея, если они летят в сторону шайбы.
 		strikeEnemyInRange(gd);
 		// если можно ехать и бить одновременно
+		// Note: will take puck instead if in range
 		moveToPuck(gd);
     }
+}
+
+Point MyStrategy::getStikeAreaPoint(GameData& gd)
+{
+	double targetX = 0;
+	if(enemyOnLeft(gd)){
+		targetX = 300;
+	}else{
+		targetX = 900;
+	}
+
+	double targetY = 0;
+	if( gd.self.getY() > getEnemyNetCenterY(gd)){
+		targetY = 610;
+	}else{
+		targetY = 310;
+	}
+
+	return Point(targetX, targetY);
+}
+
+bool MyStrategy::inStrikeArea(GameData& gd, Point& strikePoint)
+{
+	const double okRadius = 75.0;
+	return gd.self.getDistanceTo(strikePoint.x, strikePoint.y) <= okRadius;
 }
 
 bool MyStrategy::ownPuck(GameData& gd)
@@ -87,11 +124,17 @@ void MyStrategy::attackNearest(GameData& gd)
     }
 }
 
+double MyStrategy::getEnemyNetCenterY(GameData& gd)
+{
+	Player opponentPlayer = gd.world.getOpponentPlayer();
+	return 0.5 * (opponentPlayer.getNetBottom() + opponentPlayer.getNetTop());
+}
+
 Point MyStrategy::getNetPoint(GameData& gd)
 {
 	Player opponentPlayer = gd.world.getOpponentPlayer();
 	double netX = 0.5 * (opponentPlayer.getNetBack() + opponentPlayer.getNetFront());
-    double netY = 0.5 * (opponentPlayer.getNetBottom() + opponentPlayer.getNetTop());
+    double netY = getEnemyNetCenterY(gd);
 	
 	double netYShift = 0.5 * gd.game.getGoalNetHeight();
 	netYShift *= gd.self.getY() < netY ? 1 : -1;
@@ -169,7 +212,17 @@ void MyStrategy::turnAndSwing(GameData& gd)
 	 moveTo(gd, unit.getX(), unit.getY());
  }
 
+ void MyStrategy::moveTo(GameData& gd, const Point& point)
+ {
+	 moveTo(gd, point.x, point.y);
+ }
+
  double MyStrategy::getSpeed(double angle)
  {
 	return std::cos(angle * (PI / 180.0));
+ }
+
+ bool MyStrategy::enemyOnLeft(GameData& gd)
+ {
+	 return gd.world.getOpponentPlayer().getNetBack() <= 100;
  }

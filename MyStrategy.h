@@ -44,6 +44,7 @@ private:
 	// TODO implement better algoritm
 	void moveTo(GameData& gd, double x, double y);
 	void moveTo(GameData& gd, const Unit& unit);
+	void moveTo(GameData& gd, const Point& point);
 
 	void attackNearest(GameData& gd);
 
@@ -59,6 +60,13 @@ private:
 
 	// in range to strike enemy or attempt to take the puck
 	bool inStickRange(GameData& gd, const Unit& unit);
+
+	bool enemyOnLeft(GameData& gd);
+
+	Point getStikeAreaPoint(GameData& gd);
+	bool inStrikeArea(GameData& gd, Point& strikePoint);
+
+	double getEnemyNetCenterY(GameData& gd);
 };
 
 #endif
