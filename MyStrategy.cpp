@@ -61,9 +61,9 @@ Point MyStrategy::getStikeAreaPoint(GameData& gd)
 {
 	double targetX = 0;
 	if(enemyOnLeft(gd)){
-		targetX = 300;
+		targetX = 350;
 	}else{
-		targetX = 900;
+		targetX = 850;
 	}
 
 	double targetY = 0;
