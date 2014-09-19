@@ -12,14 +12,19 @@
 using namespace std;
 
 const double STRIKE_ANGLE = 1.0 * PI / 180.0;
-
+const double degreesPerRadian = 57.2957;
 
 MyStrategy::MyStrategy() { }
 
 
 void MyStrategy::move(const Hockeyist& self, const World& world, const Game& game, Move& move) {
 	GameData gd(self, world, game, move);
-	
+
+	// DEBUG - so that only one moves
+	if(gd.world.getOpponentPlayer().getId() == 0){
+		return;
+	}
+
 	if (self.getState() == SWINGING) {
         move.setAction(STRIKE);
         return;
@@ -158,9 +163,43 @@ void MyStrategy::turnAndSwing(GameData& gd)
     double angleToNet = gd.self.getAngleTo(netPoint.x, netPoint.y);
     gd.move.setTurn(angleToNet);
 
+	// slow down
+	gd.move.setSpeedUp(getSlowDownSpeed(gd));
+
+	
+
     if (abs(angleToNet) < STRIKE_ANGLE) {
         gd.move.setAction(SWING);
     }
+}
+
+
+double MyStrategy::linear_interpolation(double Kstart, double Kend, double Vstart, double Vend, double K)
+{
+	if (K <= Kstart)
+		return Vstart;
+	else if (K >= Kend)
+		return Vend;
+	else
+		return Vstart + ((K - Kstart) / (Kend - Kstart)) * (Vend - Vstart);
+}
+
+double MyStrategy::getSlowDownSpeed(GameData& gd)
+{
+	double unitVectorAngle = atan2(gd.self.getSpeedY(),gd.self.getSpeedX()) * degreesPerRadian;
+	double unitActualAngle = gd.self.getAngle() * degreesPerRadian;
+
+	double max = std::max(fabs(unitVectorAngle), fabs(unitActualAngle));
+	double min = std::min(fabs(unitVectorAngle), fabs(unitActualAngle));
+
+	double delta = max - min;
+
+	// если направление и скорость совпадат, то должно быть -1
+	// если они противоположны - то 1
+
+	double newSpeed = linear_interpolation( 0, 180, -1, 1, delta);
+
+	return newSpeed;
 }
 
  const Hockeyist* MyStrategy::getNearestOpponent(double x, double y, const World &world) {

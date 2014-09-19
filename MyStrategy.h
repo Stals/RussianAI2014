@@ -67,6 +67,11 @@ private:
 	bool inStrikeArea(GameData& gd, Point& strikePoint);
 
 	double getEnemyNetCenterY(GameData& gd);
+
+	// если угол 180 то скорость -1. если меньше то меньше
+	double getSlowDownSpeed(GameData& gd);
+
+	double linear_interpolation(double Kstart, double Kend, double Vstart, double Vend, double K);
 };
 
 #endif

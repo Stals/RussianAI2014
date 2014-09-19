@@ -2,7 +2,7 @@
 
 #include <fstream>
 
-#define LOG_ENABLED false
+#define LOG_ENABLED
 #define LOG_FILE_NAME "log.txt"
 
 #define LOG Logger::log()
@@ -10,7 +10,9 @@
 class Logger{
 public:
 	Logger(){
+#ifdef LOG_ENABLED
 		outputFile.open (LOG_FILE_NAME, std::ios::out | std::ios::app);
+#endif
 	}
 
 	static Logger& log(){
@@ -29,8 +31,10 @@ public:
 	template<typename T> 
     Logger& operator<< (const T& data) 
     {
+#ifdef LOG_ENABLED
         outputFile << data << std::endl;
 		return log();
+#endif
     }
 
 private:
